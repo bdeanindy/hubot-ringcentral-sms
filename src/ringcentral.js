@@ -1,0 +1,152 @@
+var Adapter, RingCentral, Robot, Sample, TextMessage, User, prequire, ref, ref1,
+  extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+  hasProp = {}.hasOwnProperty,
+  slice = [].slice;
+
+try {
+  ref = require('hubot'), Robot = ref.Robot, Adapter = ref.Adapter, TextMessage = ref.TextMessage, User = ref.User;
+} catch (_error) {
+  prequire = require('parent-require');
+  ref1 = prequire('hubot'), Robot = ref1.Robot, Adapter = ref1.Adapter, TextMessage = ref1.TextMessage, User = ref1.User;
+}
+
+RingCentral = require("ringcentral");
+
+Sample = (function(superClass) {
+  var RcSdk, lastSyncToken, robot;
+
+  extend(Sample, superClass);
+
+  lastSyncToken = null;
+
+  RcSdk = null;
+
+  robot = null;
+
+  var dateTo = null;
+
+  function Sample() {
+    Sample.__super__.constructor.apply(this, arguments);
+    this.robot.logger.info("Constructor");
+  }
+
+  Sample.prototype.send = function() {
+    var envelope, strings;
+    envelope = arguments[0], strings = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+    this.robot.logger.info("Start to Send");
+    return RcSdk.platform().post('/account/~/extension/~/sms', {
+      from: {
+        phoneNumber: '+16508370092'
+      },
+      to: [
+        {
+          phoneNumber: envelope.user.id
+        }
+      ],
+      text: strings[0]
+    }).then(function(response) {
+      return this.robot.logger.info("Send");
+    })["catch"](function(e) {
+      return this.robot.logger.error(e.message);
+    });
+  };
+
+  Sample.prototype.reply = function() {
+    var envelope, strings;
+    envelope = arguments[0], strings = 2 <= arguments.length ? slice.call(arguments, 1) : [];
+    this.robot.logger.info("Start to Reply");
+    console.log(text);
+    return RcSdk.platform().post('/account/~/extension/~/sms', {
+      from: {
+        phoneNumber: '+16508370092'
+      },
+      to: [
+        {
+          phoneNumber: envelope.user.id
+        }
+      ],
+      text: strings[0]
+    }).then(function(response) {
+      this.robot.logger.info("Send");
+    }).catch(function(e) {
+      this.robot.logger.error(e.message);
+    });
+  };
+
+  Sample.prototype.run = function() {
+    this.robot.logger.info("Run");
+    robot = this.robot;
+    this.emit('connected');
+    RcSdk = new RingCentral({
+      "server": process.env.HUBOT_RINGCENTRAL_SERVER,
+      "appKey": process.env.HUBOT_RINGCENTRAL_APIKEY,
+      "appSecret": process.env.HUBOT_RINGCENTRAL_APISECRET
+    });
+    return RcSdk.platform().login({
+      "username": process.env.HUBOT_RINGCENTRAL_USERNAME,
+      "extension": process.env.HUBOT_RINGCENTRAL_EXTENSION,
+      "password": process.env.HUBOT_RINGCENTRAL_PASSWORD
+    }).then(function(result) {
+      var subscription;
+      console.log("Login to RingCentral Successfully");
+      dateTo = (new Date()).toISOString();
+
+      RcSdk.platform().send({
+        method: 'Get',
+        url: '/account/~/extension/~/message-sync',
+        query: {
+          'syncType': 'FSync',
+          'messageType': "SMS",
+          'direction': "Inbound",
+          'dateTo': dateTo
+        }
+      }).then(function(apiResponse) {
+        lastSyncToken = apiResponse.json().syncInfo.syncToken;
+      });
+      subscription = RcSdk.createSubscription();
+      subscription.on(subscription.events.notification, function(msg) {
+        console.log("New Message Count -> " + msg.body.changes[0].newCount);
+        var current_time = (new Date()).toISOString();
+        return RcSdk.platform().send({
+          method: 'Get',
+          url: '/account/~/extension/~/message-sync',
+          query: {
+            'syncType': 'ISync',
+            'syncToken': lastSyncToken,
+            'dateFrom': dateTo,
+            'dateTo': current_time
+          }
+        }).then(function(apiResponse) {
+          dateTo = current_time;
+          lastSyncToken = apiResponse.json().syncInfo.syncToken;
+          console.log("ISync Message Count -> " + apiResponse.json().records.length);
+
+          apiResponse.json().records.forEach(function(record) {
+            if(record.direction === 'Inbound') {
+              var message, user;
+              user = new User(record.from.phoneNumber);
+              message = new TextMessage(user, record.subject, record.id);
+              robot.receive(message);
+            }
+          });
+        }).catch(function(e) {
+          console.log(e);
+        });
+      });
+      subscription.setEventFilters(['/account/~/extension/~/message-store']).register();
+      robot.emit('connected');
+    }).catch(function(e) {
+      return console.log(e);
+    });
+  };
+
+  return Sample;
+
+})(Adapter);
+
+exports.use = function(robot) {
+  return new Sample(robot);
+};
+
+// ---
+// generated by coffee-script 1.9.2

@@ -1,0 +1,25 @@
+{
+  "name": "hubot-ringcentral",
+  "version": "0.1.0",
+  "description": "RingCentral SMS Adapter for Hubot",
+  "main": "./src/ringcentral",
+  "dependencies": {
+    "parent-require": "^1.0.0",
+    "ringcentral": "^3.0.0-rc1"
+  },
+  "peerDependencies": {
+    "hubot": ">=2.0"
+  },
+	"devDependencies": {
+    "coffee-script": ">=1.2.0"
+	},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LingForCC/hubot-ringcentral.git"
+  },
+  "author": "Colin Liu <colin.liu@ringcentral.com>",
+  "bugs": {
+    "url": "https://github.com/LingForCC/hubot-ringcentral/issues"
+  },
+  "homepage": "https://github.com/LingForCC/hubot-ringcentral#readme"
+}
