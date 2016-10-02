@@ -1,0 +1,12 @@
+CHANGELOG
+---------
+- **0.2.0** - 2016-10-01
+  - Add linter
+  - Add `CHANGELOG`
+  - Add `LICENSE`
+  - Preparation for when this gets published to NPM
+  - Update name of package to `hubot-ringcentral-sms` 
+- **0.1.0** - 2016-09-01
+  - Add `README`
+  - First Implementation
+  - Initial commit
