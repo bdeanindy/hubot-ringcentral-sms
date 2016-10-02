@@ -16,3 +16,7 @@ This is a [Hubot](http://hubot.github.com/) adapter to use with [RingCentral SMS
 #### Testing your bot locally
 
 - `HUBOT_RINGCENTRAL_SERVER=${ServerUrl} HUBOT_RINGCENTRAL_APIKEY=${AppKey} HUBOT_RINGCENTRAL_APISECRET=${AppSecret} HUBOT_RINGCENTRAL_USERNAME=${UserName} HUBOT_RINGCENTRAL_EXTENSION=${Extension} HUBOT_RINGCENTRAL_PASSWORD=${Password} ./bin/hubot --adapter ringcentral-sms`
+
+## License
+
+hubot-ringcentral-sms adapter is available under an MIT-style license. See [LICENSE](LICENSE) for details.
