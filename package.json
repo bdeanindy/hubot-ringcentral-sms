@@ -1,6 +1,6 @@
 {
-  "name": "hubot-ringcentral",
-  "version": "0.1.0",
+  "name": "hubot-ringcentral-sms",
+  "version": "0.2.0",
   "description": "RingCentral SMS Adapter for Hubot",
   "main": "./src/ringcentral",
   "dependencies": {
@@ -11,7 +11,7 @@
     "hubot": ">=2.0"
   },
 	"devDependencies": {
-    "coffee-script": ">=1.2.0"
+	  "coffee-script": ">=1.2.0"
 	},
   "repository": {
     "type": "git",
