@@ -2,7 +2,18 @@
   "name": "hubot-ringcentral-sms",
   "version": "0.2.0",
   "description": "RingCentral SMS Adapter for Hubot",
+  "scripts": {
+	"prepublish": "coffee --join hubot-ringcentral-sms.js --compile src/*.coffee",
+	"preversion": "npm test",
+	"version": "npm run build && git add -A dist",
+	"postversion": "git push && git push --tags && rm -rf build/temp"
+	"test": "echo \"Error: no test specified\" && exit 1"
+  },
   "main": "./src/ringcentral",
+  "engines": {
+	"node": ">=4.6.x",
+	"npm": ">=3.10.x"
+  },
   "dependencies": {
     "parent-require": "^1.0.0",
     "ringcentral": "^3.0.0-rc1"
@@ -15,11 +26,28 @@
 	},
   "repository": {
     "type": "git",
-    "url": "https://github.com/LingForCC/hubot-ringcentral.git"
+    "url": "https://github.com/LingForCC/hubot-ringcentral-sms.git"
   },
-  "author": "Colin Liu <colin.liu@ringcentral.com>",
+  "author": {
+	"name": "RingCentral, Inc.",
+	"url": "https://developers.ringcentral.com"
+  },
+  "contributors": [
+	{
+	  "name": "Colin Liu",
+	  "email": "colin.liu@ringcentral.com",
+	  "url": "https://github.com/LingForCC"
+	},
+	{
+	  "name": "Benjamin Dean",
+	  "email": "benjamin.dean@ringcentral.com",
+	  "url": "https://github.com/bdeanindy"
+	}
+  ],
+  "license": "MIT",
+  "private": true,
   "bugs": {
-    "url": "https://github.com/LingForCC/hubot-ringcentral/issues"
+    "url": "https://github.com/LingForCC/hubot-ringcentral-sms/issues"
   },
-  "homepage": "https://github.com/LingForCC/hubot-ringcentral#readme"
+  "homepage": "https://github.com/LingForCC/hubot-ringcentral-sms#readme"
 }
