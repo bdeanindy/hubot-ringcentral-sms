@@ -19,7 +19,7 @@
     "ringcentral": "^3.0.0-rc1"
   },
   "peerDependencies": {
-    "hubot": ">=2.0"
+    "hubot": ">=2.19.0"
   },
 	"devDependencies": {
 	  "coffee-script": ">=1.2.0"
