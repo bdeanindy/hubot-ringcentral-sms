@@ -23,4 +23,4 @@ class RingCentralSMSAdapter extends Adapter
     message = new TextMessage user, 'Some Sample Message', 'MSG-001'
     @robot.receive message
 
-module.exports RingCentralSMSAdapter
+module.exports = RingCentralSMSAdapter
