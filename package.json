@@ -3,15 +3,15 @@
   "version": "0.2.0",
   "description": "RingCentral SMS Adapter for Hubot",
   "scripts": {
-    "pretest": "coffeeCoverage --inst istanbul --exclude test/**/*.coffee,node_modules . .",
-    "posttest": "istanbul report text-summary",
-    "prepublish": "echo \"TODO: compile .coffee files to .js and compress",
+    "pretest": "coffeelint ./src",
+    "test": "npm run mocha && istanbul report text-summary lcov",
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "mocha": "mocha --compilers coffee:coffee-script/register  --require coffee-coverage/register-istanbul --reporter spec test",
     "preversion": "npm test",
     "version": "npm run build && git add -A dist",
-    "postversion": "git push && git push --tags && rm -rf build/temp",
-    "test": "istanbul cover --print none tape test/**/*.js | faucet"
+    "postversion": "git push && git push --tags && rm -rf build/temp"
   },
-  "main": "./src/ringcentral",
+  "main": "./ringcentralSMS",
   "engines": {
     "node": ">=4.6.x",
     "npm": ">=3.10.x"
@@ -20,17 +20,15 @@
     "parent-require": "^1.0.0",
     "ringcentral": "^3.0.0-rc1"
   },
-  "peerDependencies": {
-    "hubot": ">=2.19.0"
-  },
   "devDependencies": {
     "coffee-coverage": "^1.0.1",
-    "coffee-script": ">=1.11.0",
+    "coffee-script": ">=1.2.0",
     "coffeelint": "^1.15.7",
-    "coffeetape": "^1.0.1",
-    "faucet": "0.0.1",
+    "coveralls": "^2.11.14",
+    "hubot": ">=2.19.0",
     "istanbul": "^0.4.5",
-    "tape": "^4.6.2"
+    "mocha": "^3.1.0",
+    "should": "^11.1.0"
   },
   "repository": {
     "type": "git",
