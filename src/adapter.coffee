@@ -1,23 +1,23 @@
 try
-  {Adapter, TextMessage, User} = require 'hubot'
+  {Robot, Adapter, TextMessage, User} = require 'hubot'
 catch
   prequire = require('parent-require')
-  {Adapter, TextMessage, User} = prequire 'hubot'
+  {Robot, Adapter, TextMessage, User} = prequire 'hubot'
 
 class RingCentralSMSAdapter extends Adapter
 
   constructor: ->
     super
-    @robot.logger.info "Constructor"
+    console.log("Constructor")
 
   send: (envelope, strings...) ->
-    @robot.logger.info "Send"
+    console.log("Send")
 
   reply: (envelope, strings...) ->
-    @robot.logger.info "Reply"
+    console.log("Reply")
 
   run: ->
-    @robot.logger.info "Run"
+    console.log("Run")
     @emit "connected"
     user = new User 1001, name: 'Sample User'
     message = new TextMessage user, 'Some Sample Message', 'MSG-001'
