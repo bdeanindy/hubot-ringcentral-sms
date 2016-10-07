@@ -7,6 +7,7 @@ class RingCentralSMSAdapter extends Adapter
   constructor: (@robot, @options) ->
     #super
     console.log("Constructor")
+    @RCSDK = null
 
   # Public: Method for sending data back to the chat source.
   #
