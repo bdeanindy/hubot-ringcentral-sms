@@ -1,21 +1,21 @@
-try
-  {Robot, Adapter, TextMessage, User} = require 'hubot'
-catch
-  prequire = require('parent-require')
-  {Robot, Adapter, TextMessage, User} = prequire 'hubot'
+{Adapter, TextMessage, Message, Robot, User} = require.main.require 'hubot'
 
 class RingCentralSMSAdapter extends Adapter
 
-  constructor: ->
-    super
+  # Expects @robot which is a robot instance
+  constructor: (@robot, @options) ->
+    #super
     console.log("Constructor")
 
+  # Public: Method for sending data back to the chat source.
   send: (envelope, strings...) ->
     console.log("Send")
 
+  # Public: Method for building a reply and sending it back to the chat source
   reply: (envelope, strings...) ->
     console.log("Reply")
 
+  # Public: Method for invoking the bot to run
   run: ->
     console.log("Run")
     @emit "connected"
