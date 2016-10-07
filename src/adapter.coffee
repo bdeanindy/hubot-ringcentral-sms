@@ -6,7 +6,8 @@ class RingCentralSMSAdapter extends Adapter
   # For more info on Robot: https://github.com/github/hubot/blob/master/src/robot.coffee
   constructor: (@robot, @options) ->
     #super
-    console.log("Constructor")
+    @robot.logger.info("Constructor")
+    # console.log("Constructor")
     @RCSDK = null
 
   # Public: Method for sending data back to the chat source.
@@ -16,7 +17,7 @@ class RingCentralSMSAdapter extends Adapter
   #
   # Returns nothing.
   send: (envelope, strings...) ->
-    console.log("Send")
+    @robot.logger.info("Send")
 
   # Public: Method for building a reply and sending it back to the chat source
   #
@@ -25,13 +26,13 @@ class RingCentralSMSAdapter extends Adapter
   #
   # Returns nothing.
   reply: (envelope, strings...) ->
-    console.log("Reply")
+    @robot.logger.info("Reply")
 
   # Public: Method for invoking the bot to run
   #
   # Returns nothing
   run: ->
-    console.log("Run")
+    @robot.logger.info("Run")
     @emit "connected"
     user = new User 1001, name: 'Sample User'
     message = new TextMessage user, 'Some Sample Message', 'MSG-001'
@@ -42,6 +43,7 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   # receive: (message) ->
   #   @robot.receive message
+    @robot.logger.info("Receive")
 
   # Public: Get an Array of User objects stored in the brain.
   #
@@ -49,6 +51,7 @@ class RingCentralSMSAdapter extends Adapter
   # users: ->
   # @robot.logger.warning '@users() is going to be deprecated in 3.0.0 use @robot.brain.users()'
   # @robot.brain.users()
+    @robot.logger.info("Brain.Users")
 
   # Public: Get a User object given a unique identifier.
   #
@@ -56,6 +59,7 @@ class RingCentralSMSAdapter extends Adapter
   # userForId: (id, options) ->
   # @robot.logger.warning '@userForId() is going to be deprecated in 3.0.0 use @robot.brain.userForId()'
   # @robot.brain.userForId id, options
+    @robot.logger.info("Brain.UserForId")
 
   # Public: Get a User object given a name.
   #
@@ -63,6 +67,7 @@ class RingCentralSMSAdapter extends Adapter
   # userForName: (name) ->
   # @robot.logger.warning '@userForName() is going to be deprecated in 3.0.0 use @robot.brain.userForName()'
   # @robot.brain.userForName name
+    @robot.logger.info("Brain.UserForName")
 
   # Public: Get all users whose names match fuzzyName. Currently, match
   # means 'starts with', but this could be extended to match initials,
@@ -72,6 +77,7 @@ class RingCentralSMSAdapter extends Adapter
   # usersForRawFuzzyName: (fuzzyName) ->
   # @robot.logger.warning '@userForRawFuzzyName() is going to be deprecated in 3.0.0 use @robot.brain.userForRawFuzzyName()'
   # @robot.brain.usersForRawFuzzyName fuzzyName
+    @robot.logger.info("Brain.UserForRawFuzzyName")
 
   # Public: If fuzzyName is an exact match for a user, returns an array with
   # just that user. Otherwise, returns an array of all users for which
