@@ -7,22 +7,44 @@ class RingCentralSMSAdapter extends Adapter
   # Expects @robot which is a robot instance
   # For more info on Robot: https://github.com/github/hubot/blob/master/src/robot.coffee
   constructor: (@robot, @options) ->
-    #super
+    super
     @robot.logger.info("Constructor")
-    # console.log("Constructor")
-    @RCSDK = null
+    rcConfig =
+      server: process.env.HUBOT_RINGCENTRAL_SERVER,
+      appKey: process.env.HUBOT_RINGCENTRAL_APPKEY,
+      appSecret: process.env.HUBOT_RINGCENTRAL_APPSECRET
+    @RCSDK = new RingCentral rcConfig
     @lastSyncToken = null
     @dateTo = null
 
 
   # Public: Method for sending data back to the chat source.
   #
-  # envelope - A Object with message, room and user details.
+  # envelope - A Object with message metadata.
   # strings  - One or more Strings for each message to send.
   #
   # Returns nothing.
   send: (envelope, strings...) ->
-    @robot.logger.info("Send")
+    @robot.logger.info("Start to Send")
+    @robot.logger.info('Envelope: ', envelope)
+    # TODO: Add some sanity checks first...?
+    smsPostPayload =
+      from:
+        phoneNumber: process.env.HUBOT_RINGCENTRAL_USERNAME
+      to: [
+        {
+          phoneNumber: envelope.to
+        }
+      ]
+      text: strings[0]
+
+    @RCSDK.platform().post('/account/~/extension/~/sms', smsPostPayload)
+    .then (response) =>
+      @robot.logger.info("Send")
+      # return response
+    .catch (e) =>
+      @robot.logger.error e.message
+      throw e
 
 
   # Public: Method for building a reply and sending it back to the chat source
@@ -41,11 +63,6 @@ class RingCentralSMSAdapter extends Adapter
   run: ->
     @robot.logger.info("Run")
     @robot.emit "Connecting..."
-    rcConfig =
-      server: process.env.HUBOT_RINGCENTRAL_SERVER,
-      appKey: process.env.HUBOT_RINGCENTRAL_APPKEY,
-      appSecret: process.env.HUBOT_RINGCENTRAL_APPSECRET
-    @RCSDK = new RingCentral rcConfig
     userConfig =
       username: process.env.HUBOT_RINGCENTRAL_USERNAME,
       password: process.env.HUBOT_RINGCENTRAL_PASSWORD,
@@ -90,8 +107,8 @@ class RingCentralSMSAdapter extends Adapter
             user = new User(record.from.phoneNumber)
             message = new TextMessage(user, record.subject, record.id)
             @robot.receive(message)
-      .catch (e) ->
-        console.error e
+      .catch (e) =>
+        @robot.logger.error e.message
         throw e
     subscription.setEventFilters(['/account/~/extension/~/message-store']).register()
     @robot.emit "Connected"
