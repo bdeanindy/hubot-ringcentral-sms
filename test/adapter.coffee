@@ -10,6 +10,12 @@ describe 'RingCentral SMS Adapter', ->
 
   it 'Should have a reference to the RingCentral Client', ->
     @rcsmsbot.should.have.ownProperty('RCSDK')
+    @rcsmsbot.should.have.ownProperty('lastSyncToken')
+    @rcsmsbot.should.have.ownProperty('dateTo')
+
+  describe 'Login', ->
+    it 'Should set the robot name', ->
+      @rcsmsbot.robot.name.should.equal 'bot'
 
   describe 'Logger', ->
 
@@ -17,10 +23,10 @@ describe 'RingCentral SMS Adapter', ->
 
   describe 'Send a Message', ->
 
-    it 'Should send a message'
-      # sentMessage = @rcsmsbot.send {to: '12223334444', from: '15552223333'}, 'message'
-      # sentMessage.length.should.equal 1
-      # sentMessage[0].should equal 'message'
+    it 'Should send a message', ->
+      sentMessage = @rcsmsbot.send {to: '12223334444', from: '15552223333'}, 'message'
+      sentMessage.length.should.equal 1
+      sentMessage[0].should equal 'message'
 
   describe 'Replying to Messages', ->
     # params
