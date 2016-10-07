@@ -11,25 +11,31 @@ describe 'RingCentral SMS Adapter', ->
   it 'Should have a reference to the RingCentral Client', ->
     @rcsmsbot.should.have.ownProperty('RCSDK')
 
-describe 'Logger', ->
+  describe 'Logger', ->
 
-  it 'Should log authentication errors'
+    it 'Should log authentication errors'
 
-describe 'Send a Message', ->
+  describe 'Send a Message', ->
 
-  it 'Should send a message'
-    # sentMessage = @rcsmsbot.send {to: '12223334444', from: '15552223333'}, 'message'
-    # sentMessage.length.should.equal 1
-    # sentMessage[0].should equal 'message'
+    it 'Should send a message'
+      # sentMessage = @rcsmsbot.send {to: '12223334444', from: '15552223333'}, 'message'
+      # sentMessage.length.should.equal 1
+      # sentMessage[0].should equal 'message'
 
-describe 'Replying to Messages', ->
-  # params
-  # - envelope: SMS payload defining `to`, `from`, and
+  describe 'Replying to Messages', ->
+    # params
+    # - envelope: SMS payload defining `to`, `from`, and
 
-  it 'Should reply to valid messages'
+    it 'Should reply to valid messages'
 
-  it 'Should not reply to invalid messages'
+    it 'Should not reply to invalid messages'
 
-describe 'Run -- Invokes the bot to run', ->
+  describe 'Run -- Invokes the bot to run', ->
 
-  it 'Should handle valid bot invokation'
+    it 'Should handle valid bot invokation'
+
+    it 'Should authenticate to RingCentral'
+
+    it 'Should message-sync to RingCentral accordingly'
+
+    it 'Should relay inbound SMS messages to Hubot'
