@@ -1,5 +1,7 @@
 {Adapter, TextMessage, Message, Robot, User} = require.main.require 'hubot'
 
+if process.env.NODE_ENV != 'production' then require('dotenv').load()
+
 RingCentral = require 'ringcentral'
 
 class RingCentralSMSAdapter extends Adapter
@@ -67,7 +69,8 @@ class RingCentralSMSAdapter extends Adapter
       username: process.env.HUBOT_RINGCENTRAL_USERNAME,
       password: process.env.HUBOT_RINGCENTRAL_PASSWORD,
       extension: process.env.HUBOT_RINGCENTRAL_EXTENSION
-    return @RCSDK.platform().login userConfig
+
+    @RCSDK.platform().login userConfig
     .then (result) =>
       @robot.logger.info("Authenticated to RingCentral successfully")
       subscription = @RCSDK.createSubscription()

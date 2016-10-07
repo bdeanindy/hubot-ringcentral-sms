@@ -25,6 +25,7 @@
     "coffee-script": ">=1.2.0",
     "coffeelint": "^1.15.7",
     "coveralls": "^2.11.14",
+    "dotenv": "^2.0.0",
     "hubot": ">=2.19.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.1.0",
