@@ -12,12 +12,20 @@ class RingCentralSMSAdapter extends Adapter
     super
     @robot.logger.info("Constructor")
     rcConfig =
-      server: process.env.HUBOT_RINGCENTRAL_SERVER,
-      appKey: process.env.HUBOT_RINGCENTRAL_APPKEY,
-      appSecret: process.env.HUBOT_RINGCENTRAL_APPSECRET
+      server: process.env.HUBOT_RINGCENTRAL_APP_SERVER,
+      appKey: process.env.HUBOT_RINGCENTRAL_APP_KEY,
+      appSecret: process.env.HUBOT_RINGCENTRAL_APP_SECRET
     @RCSDK = new RingCentral rcConfig
+    @platform = @RCSDK.platform()
+    @subscription = @RCSDK.createSubscription()
     @lastSyncToken = null
     @dateTo = null
+
+    @platform.on(@platform.events.loginSuccess, @handleLoginSuccess)
+    @platform.on(@platform.events.loginError, @handleLoginError)
+    @platform.on(@platform.events.refreshSuccess, @handleRefreshSuccess)
+    @platform.on(@platform.events.refreshError, @handleRefreshError)
+    @platform.on(@platform.events.logoutSuccess, @handleLogoutSuccess)
 
 
   # Public: Method for sending data back to the chat source.
@@ -40,7 +48,7 @@ class RingCentralSMSAdapter extends Adapter
       ]
       text: strings[0]
 
-    @RCSDK.platform().post('/account/~/extension/~/sms', smsPostPayload)
+    @platform.post('/account/~/extension/~/sms', smsPostPayload)
     .then (response) =>
       @robot.logger.info("Send")
       # return response
@@ -69,58 +77,82 @@ class RingCentralSMSAdapter extends Adapter
       username: process.env.HUBOT_RINGCENTRAL_USERNAME,
       password: process.env.HUBOT_RINGCENTRAL_PASSWORD,
       extension: process.env.HUBOT_RINGCENTRAL_EXTENSION
-
-    @RCSDK.platform().login userConfig
+    @platform.login userConfig
     .then (result) =>
-      @robot.logger.info("Authenticated to RingCentral successfully")
-      subscription = @RCSDK.createSubscription()
-      @dateTo = (new Date()).toISOString()
-
-      fSyncPayload =
-        method: 'Get',
-        url: '/account/~/extension/~/message-sync',
-        query:
-          syncType: 'FSync',
-          messageType: 'SMS',
-          direction: 'Inbound',
-          dateTo: @dateTo
-      @RCSDK.platform().send fSyncPayload
-      .then (apiResponse) =>
-        @lastSyncToken = apiResponse.json().syncInfo.syncToken
-
-    subscription.on(subscription.events.notification, (msg) =>
-      @robot.logger.info("New Message Count: " + msg.body.changes[0].newCount)
-      currentTime = (new Date()).toISOString()
-      iSyncPayload =
-        method: 'Get',
-        url: '/account/~/extension/~/message-sync',
-        query:
-          syncType: 'ISync',
-          syncToken: @lastSyncToken,
-          dateFrom: @dateTo,
-          dateTo: currentTime
-      @RCSDK.platform().send iSyncPaylod
-      )
-      .then (iSyncResponse) =>
-        @dateTo = currentTime
-        @lastSyncToken = iSyncResponse.json().syncInfo.syncToken
-        @robot.logger.info('ISync Message Count: ' + iSyncResponse.jsoin().records.length)
-        iSyncResponse.json().records.forEach (record) ->
-          if 'Inbound' == record.direction
-            user = new User(record.from.phoneNumber)
-            message = new TextMessage(user, record.subject, record.id)
-            @robot.receive(message)
-      .catch (e) =>
-        @robot.logger.error e.message
-        throw e
-    subscription.setEventFilters(['/account/~/extension/~/message-store']).register()
-    @robot.emit "Connected"
+      # Bind subscription event listeners
+      @subscription.on(@subscription.events.notification, @handleSubscriptionNotification)
+      @subscription.on(@subscription.events.subscribeError, @handleSubscribeError)
+      @subscription.on(@subscription.events.subscribeSuccess, @handleSubscribeSuccess)
     .catch (e) ->
-      console.error e
+      @robot.logger.error(e)
       throw e
-    # user = new User 1001, name: 'Sample User'
-    # message = new TextMessage user, 'Some Sample Message', 'MSG-001'
-    # @robot.receive message
+
+
+  # Public: Platform Login Success Handler
+  #
+  # Returns RingCentral API Token
+  handleLoginSuccess: (msg) =>
+    @robot.logger.info('RingCentral authentication successful', msg.json())
+    @subscription.setEventFilters(['/account/~/extension/~/message-store/instant?type=SMS']).register()
+    # TODO: Lookup extension and user info to assign below
+    # user = new User(record.from.phoneNumber)
+
+
+  # Public: Platform Login Error Handler
+  #
+  # Returns nothing
+  handleLoginError: (msg) =>
+    @robot.logger.error('RingCentral authentication failed', msg)
+
+
+  # Public: Platform Refresh Error Handler
+  #
+  # Returns nothing
+  handleRefreshError: (msg) =>
+    @robot.logger.error('RingCentral failed to refresh', msg)
+
+
+  # Public: Platform Refresh Success Handler
+  #
+  # Returns RingCentral API Token
+  handleRefreshSuccess: (msg) =>
+    @robot.logger.info('RingCentral refreshed successfully', msg.json())
+    # TODO: Lookup extension and user info to assign below
+    # user = new User(record.from.phoneNumber)
+
+
+  # Public: Platform Logout Success Handler
+  #
+  # Returns nothing
+  handleLogoutSuccess: (msg) =>
+    @robot.logger.info('RingCentral logged out successfully', msg.json())
+    # TODO: Lookup extension and user info to deregister below
+    # user = new User(record.from.phoneNumber)
+
+
+  # Public: Subscription Event Notification Handler
+  #
+  # Returns nothing
+  handleSubscriptionNotification: (msg) =>
+    @robot.logger.info('New Inbound SMS: ', msg)
+    user = new User(record.from.phoneNumber)
+    message = new TextMessage(user, record.subject, record.id)
+    @robot.receive(message)
+
+
+  # Public: Subscribe Error Handler
+  #
+  # Returns nothing
+  handleSubscribeError: (msg) =>
+    @robot.logger.error(msg)
+
+
+  # Public: Subscribe Success Handler
+  #
+  # Returns nothing
+  handleSubscribeSuccess: (msg) =>
+    @robot.logger.info('Subscribed', msg.json())
+    @robot.emit "connected"
 
 
   # Public: Dispatch a received message to the robot
