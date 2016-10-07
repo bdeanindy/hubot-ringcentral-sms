@@ -1,3 +1,4 @@
+# Attribution for this handy stubs file goes to: https://github.com/slackhq/hubot-slack/blob/master/test/stubs.coffee
 # Setup stubs used within other tests
 
 RCSMSBot = require '../src/adapter'
