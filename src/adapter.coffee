@@ -115,7 +115,7 @@ class RingCentralSMSAdapter extends Adapter
     ownerId = if authData.json().owner_id then authData.json().owner_id else '~'
     # @robot.logger.info('findUserbyExtension')
     @platform.get('/account/~/extension/' + ownerId + '/')
-    .then (extension) =>
+    .then (extension) ->
       # @robot.logger.info('Extension: ', extension.json())
       extension.json()
     .catch (e) =>
