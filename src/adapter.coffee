@@ -21,12 +21,17 @@ class RingCentralSMSAdapter extends Adapter
     @lastSyncToken = null
     @dateTo = null
 
+    # Bind platform event listeners
     @platform.on(@platform.events.loginSuccess, @handleLoginSuccess)
     @platform.on(@platform.events.loginError, @handleLoginError)
     @platform.on(@platform.events.refreshSuccess, @handleRefreshSuccess)
     @platform.on(@platform.events.refreshError, @handleRefreshError)
     @platform.on(@platform.events.logoutSuccess, @handleLogoutSuccess)
 
+    # Bind subscription event listeners
+    @subscription.on(@subscription.events.notification, @handleSubscriptionNotification)
+    @subscription.on(@subscription.events.subscribeError, @handleSubscribeError)
+    @subscription.on(@subscription.events.subscribeSuccess, @handleSubscribeSuccess)
 
   # Public: Method for sending data back to the chat source.
   #
@@ -37,8 +42,9 @@ class RingCentralSMSAdapter extends Adapter
   send: (envelope, strings...) ->
     @robot.logger.info("Start to Send")
     @robot.logger.info('Envelope: ', envelope)
+
     # TODO: Add some sanity checks first...?
-    smsPostPayload =
+    sendPostPayload =
       from:
         phoneNumber: process.env.HUBOT_RINGCENTRAL_USERNAME
       to: [
@@ -47,11 +53,9 @@ class RingCentralSMSAdapter extends Adapter
         }
       ]
       text: strings[0]
-
-    @platform.post('/account/~/extension/~/sms', smsPostPayload)
-    .then (response) =>
+    @platform.post('/account/~/extension/~/sms', sendPostPayload)
+    .then (result) =>
       @robot.logger.info("Send")
-      # return response
     .catch (e) =>
       @robot.logger.error e.message
       throw e
@@ -65,6 +69,21 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing.
   reply: (envelope, strings...) ->
     @robot.logger.info("Reply")
+    replyPostPayload =
+      from:
+        phoneNumber: process.env.HUBOT_RINGCENTRAL_USERNAME
+      to: [
+        {
+          phoneNumber: envelope.user.id
+        }
+      ]
+      text: strings[0]
+    @platform.post('/account/~/extension/~/sms', replyPostPayload)
+    .then (result) =>
+      @robot.logger.info("Reply")
+    .catch (e) =>
+      @robot.logger.error e.message
+      throw e
 
 
   # Public: Method for invoking the bot to run
@@ -72,18 +91,34 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   run: ->
     @robot.logger.info("Run")
-    @robot.emit "Connecting..."
     userConfig =
       username: process.env.HUBOT_RINGCENTRAL_USERNAME,
       password: process.env.HUBOT_RINGCENTRAL_PASSWORD,
       extension: process.env.HUBOT_RINGCENTRAL_EXTENSION
     @platform.login userConfig
-    .then (result) =>
-      # Bind subscription event listeners
-      @subscription.on(@subscription.events.notification, @handleSubscriptionNotification)
-      @subscription.on(@subscription.events.subscribeError, @handleSubscribeError)
-      @subscription.on(@subscription.events.subscribeSuccess, @handleSubscribeSuccess)
-    .catch (e) ->
+    .then @findUserById
+    .then (ext) =>
+      @robot.emit "connected"
+      # @robot.logger.info('Owner: ', ext)
+      user = new User ext.id, name: ext['name']
+      message = new TextMessage user, 'Some Sample Message', 'MSG-001'
+      @robot.receive message
+    .catch (e) =>
+      @robot.logger.error(e)
+      throw e
+
+
+  # Public: FindUserByExtension
+  #
+  # Returns RingCentral Extension
+  findUserById: (authData) =>
+    ownerId = if authData.json().owner_id then authData.json().owner_id else '~'
+    # @robot.logger.info('findUserbyExtension')
+    @platform.get('/account/~/extension/' + ownerId + '/')
+    .then (extension) =>
+      # @robot.logger.info('Extension: ', extension.json())
+      extension.json()
+    .catch (e) =>
       @robot.logger.error(e)
       throw e
 
@@ -94,8 +129,6 @@ class RingCentralSMSAdapter extends Adapter
   handleLoginSuccess: (msg) =>
     @robot.logger.info('RingCentral authentication successful', msg.json())
     @subscription.setEventFilters(['/account/~/extension/~/message-store/instant?type=SMS']).register()
-    # TODO: Lookup extension and user info to assign below
-    # user = new User(record.from.phoneNumber)
 
 
   # Public: Platform Login Error Handler
@@ -135,9 +168,9 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   handleSubscriptionNotification: (msg) =>
     @robot.logger.info('New Inbound SMS: ', msg)
-    user = new User(record.from.phoneNumber)
-    message = new TextMessage(user, record.subject, record.id)
-    @robot.receive(message)
+    # user = new User(record.from.phoneNumber)
+    # message = new TextMessage(user, record.subject, record.id)
+    # @robot.receive(message)
 
 
   # Public: Subscribe Error Handler
@@ -152,15 +185,14 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   handleSubscribeSuccess: (msg) =>
     @robot.logger.info('Subscribed', msg.json())
-    @robot.emit "connected"
 
 
   # Public: Dispatch a received message to the robot
   #
   # Returns nothing
-  # receive: (message) ->
-  #   @robot.receive message
+  receive: (message) ->
     @robot.logger.info("Receive")
+    @robot.receive message
 
 
   # Public: Get an Array of User objects stored in the brain.
