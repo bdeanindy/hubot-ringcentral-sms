@@ -1,50 +1,64 @@
-SDK = require 'ringcentral'
 should = require 'should'
+RingCentralClient = require '../src/client'
 
 describe 'RingCentral Client', ->
 
-  it 'Should require options and robot arguments', ->
+  a = new RingCentralClient()
+
+  it 'Should have a constructor', ->
+    a.should.exist
+    a.should.be.instanceof(RingCentralClient)
+    a.should.be.type('object')
+
+  it 'Should expose the required properties and methods', ->
+    a.should.have.ownProperty('robot')
+    a.should.have.ownProperty('rcsdk')
+    a.should.have.ownProperty('platform')
+    a.should.have.ownProperty('subscription')
+    a.should.have.property('login')
+
+  it 'Should require two parameters', ->
 
 
-  it 'Should initialize with an SDK instance', ->
-    (@client.rcsdk instanceof SDK).should.equal true
+  it 'Should maintain a reference to the supplied robot', ->
+    @client.robot.should.equal @stubs.robot
 
-describe 'start()', ->
+  describe 'start()', ->
 
-  it 'Should be able to start'
+    it 'Should be able to start'
 
-describe 'finish()', ->
+  describe 'finish()', ->
 
-  it 'Should be able to finish'
+    it 'Should be able to finish'
 
-describe 'connect()', ->
+  describe 'connect()', ->
 
-  it 'Should be able to connect'
+    it 'Should be able to connect'
 
-describe 'login()', ->
+  describe 'login()', ->
 
-  it 'Should be able to login'
+    it 'Should be able to login'
 
-describe 'on()', ->
+  describe 'on()', ->
 
-  it 'Should open with a new connection'
+    it 'Should open with a new connection'
 
-  it 'Should open with a new message connection'
+    it 'Should open with a new message connection'
 
-  it 'Should hit a provided callback'
+    it 'Should hit a provided callback'
 
-describe 'handleMessage()', ->
+  describe 'handleMessage()', ->
 
-  it 'Should be able to handle messages'
+    it 'Should be able to handle messages'
 
-describe 'handleError()', ->
+  describe 'handleError()', ->
 
-  it 'Should be able to handle errors'
+    it 'Should be able to handle errors'
 
-describe 'disconnect()', ->
+  describe 'disconnect()', ->
 
-  it 'Should disconnect all connections'
+    it 'Should disconnect all connections'
 
-describe 'sendSMS()', ->
+  describe 'sendSMS()', ->
 
-  it 'Should send a message over SMS'
+    it 'Should send a message over SMS'
