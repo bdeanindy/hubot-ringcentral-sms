@@ -5,8 +5,20 @@ RCSMSBot = require '../src/adapter'
 
 describe 'RingCentral SMS Adapter', ->
 
+  it 'Should have a constructor', ->
+    @rcsmsbot.should.exist
+
   it 'Should initialize with a robot', ->
     @rcsmsbot.robot.should.eql @stubs.robot
+
+  it 'Should expose the required methods and properties', ->
+    @rcsmsbot.should.have.property('run')
+    @rcsmsbot.should.have.property('send')
+    @rcsmsbot.should.have.property('reply')
+    @rcsmsbot.should.have.property('receive')
+    @rcsmsbot.should.have.property('users')
+    @rcsmsbot.should.have.property('userForId')
+    @rcsmsbot.should.have.property('userForName')
 
   describe 'Login', ->
     it 'Should set the robot name', ->
@@ -23,7 +35,7 @@ describe 'RingCentral SMS Adapter', ->
       # sentMessage.length.should.equal 1
       # sentMessage[0].should equal 'message'
 
-  describe 'Replying to Messages', ->
+  describe 'Reply to Messages', ->
     # params
     # - envelope: SMS payload defining `to`, `from`, and
 

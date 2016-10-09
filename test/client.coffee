@@ -1,3 +1,4 @@
+sinon = require 'sinon'
 should = require 'should'
 RingCentralClient = require '../src/client'
 

@@ -79,36 +79,4 @@ class RingCentralSMSAdapter extends Adapter
   # @robot.brain.userForName name
   #  @robot.logger.info("Brain.UserForName")
 
-
-  # Public: Get all users whose names match fuzzyName. Currently, match
-  # means 'starts with', but this could be extended to match initials,
-  # nicknames, etc.
-  #
-  # Returns an Array of User instances matching the fuzzy name.
-  # usersForRawFuzzyName: (fuzzyName) ->
-  # @robot.logger.warning '@userForRawFuzzyName() is going to be deprecated in 3.0.0 use @robot.brain.userForRawFuzzyName()'
-  # @robot.brain.usersForRawFuzzyName fuzzyName
-  # @robot.logger.info("Brain.UserForRawFuzzyName")
-
-
-  # Public: If fuzzyName is an exact match for a user, returns an array with
-  # just that user. Otherwise, returns an array of all users for which
-  # fuzzyName is a raw fuzzy match (see usersForRawFuzzyName).
-  #
-  # Returns an Array of User instances matching the fuzzy name.
-  # usersForFuzzyName: (fuzzyName) ->
-  # @robot.logger.warning '@userForFuzzyName() is going to be deprecated in 3.0.0 use @robot.brain.userForFuzzyName()'
-  # @robot.brain.usersForFuzzyName fuzzyName
-
-
-  # Public: Creates a scoped http client with chainable methods for
-  # modifying the request. This doesn't actually make a request though.
-  # Once your request is assembled, you can call `get()`/`post()`/etc to
-  # send the request.
-  #
-  # Returns a ScopedClient instance.
-  # http: (url) ->
-  # @robot.logger.warning '@http() is going to be deprecated in 3.0.0 use @robot.http()'
-  # @robot.http(url)
-
 module.exports = RingCentralSMSAdapter
