@@ -8,11 +8,6 @@ describe 'RingCentral SMS Adapter', ->
   it 'Should initialize with a robot', ->
     @rcsmsbot.robot.should.eql @stubs.robot
 
-  it 'Should have a reference to the RingCentral Client', ->
-    @rcsmsbot.should.have.ownProperty('RCSDK')
-    @rcsmsbot.should.have.ownProperty('lastSyncToken')
-    @rcsmsbot.should.have.ownProperty('dateTo')
-
   describe 'Login', ->
     it 'Should set the robot name', ->
       @rcsmsbot.robot.name.should.equal 'bot'

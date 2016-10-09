@@ -16,49 +16,56 @@ describe 'RingCentral Client', ->
     a.should.have.ownProperty('platform')
     a.should.have.ownProperty('subscription')
     a.should.have.property('login')
+    a.should.have.property('start')
+    a.should.have.property('finish')
+    a.should.have.property('connect')
+    a.should.have.property('on')
+    a.should.have.property('handleMessage')
+    a.should.have.property('handleError')
+    a.should.have.property('disconnect')
+    a.should.have.property('sendSMS')
 
   it 'Should require two parameters', ->
-
 
   it 'Should maintain a reference to the supplied robot', ->
     @client.robot.should.equal @stubs.robot
 
   describe 'start()', ->
 
-    it 'Should be able to start'
+    it 'Should be able to start', ->
 
   describe 'finish()', ->
 
-    it 'Should be able to finish'
+    it 'Should be able to finish', ->
 
   describe 'connect()', ->
 
-    it 'Should be able to connect'
+    it 'Should be able to connect', ->
 
   describe 'login()', ->
 
-    it 'Should be able to login'
+    it 'Should be able to login', ->
 
   describe 'on()', ->
 
-    it 'Should open with a new connection'
+    it 'Should open with a new connection', ->
 
-    it 'Should open with a new message connection'
+    it 'Should open with a new message connection', ->
 
-    it 'Should hit a provided callback'
+    it 'Should hit a provided callback', ->
 
   describe 'handleMessage()', ->
 
-    it 'Should be able to handle messages'
+    it 'Should be able to handle messages', ->
 
   describe 'handleError()', ->
 
-    it 'Should be able to handle errors'
+    it 'Should be able to handle errors', ->
 
   describe 'disconnect()', ->
 
-    it 'Should disconnect all connections'
+    it 'Should disconnect all connections', ->
 
   describe 'sendSMS()', ->
 
-    it 'Should send a message over SMS'
+    it 'Should send a message over SMS', ->
