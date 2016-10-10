@@ -9,9 +9,10 @@ class RingCentralSMSAdapter extends Adapter
 
   # Expects @robot which is a robot instance
   # For more info on Robot: https://github.com/github/hubot/blob/master/src/robot.coffee
-  constructor: (@robot, @options) ->
+  constructor: (robot, @options = {}) ->
     @client = new RingCentralClient(@options, @robot)
-    super
+    super(robot)
+    # TODO: Add error handling for config param requirements
     @robot.logger.info("Constructor")
 
   # Public: Method for sending data back to the chat source.
@@ -39,10 +40,10 @@ class RingCentralSMSAdapter extends Adapter
   #
   # Returns nothing
   run: ->
-    @robot.logger.info("Run")
-    options =
-      url: Url.resolve(process.env.TWILIO_HUBOT_BASE_URL, '/hubot/sms')
-      headers: @_http_headers
+    @robot.logger.info("Initializing RingCentralSMSAdapter")
+    @robot.logger.info("Robot Name: ", @robot.name)
+    @robot.logger.info("Robot User: ", @robot.user)
+    @emit "connected"
 
 
   # Public: Dispatch a received message to the robot
@@ -50,33 +51,35 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   receive: (message) ->
     @robot.logger.info("Receive")
-    @robot.receive message
+    if message.fromUserId != @robot.userId
+      # Lookup user
+      @receive message
 
 
   # Public: Get an Array of User objects stored in the brain.
   #
   # Returns an Array of User objects.
-  # users: ->
-  # @robot.logger.warning '@users() is going to be deprecated in 3.0.0 use @robot.brain.users()'
-  # @robot.brain.users()
-  # @robot.logger.info("Brain.Users")
+  users: ->
+    @robot.logger.warning '@users() is going to be deprecated in 3.0.0 use @robot.brain.users()'
+    @robot.brain.users()
+    @robot.logger.info("Brain.Users")
 
 
   # Public: Get a User object given a unique identifier.
   #
   # Returns a User instance of the specified user.
-  # userForId: (id, options) ->
-  # @robot.logger.warning '@userForId() is going to be deprecated in 3.0.0 use @robot.brain.userForId()'
-  # @robot.brain.userForId id, options
-  # @robot.logger.info("Brain.UserForId")
+  userForId: (id, options) ->
+    @robot.logger.warning '@userForId() is going to be deprecated in 3.0.0 use @robot.brain.userForId()'
+    @robot.brain.userForId id, options
+    @robot.logger.info("Brain.UserForId")
 
 
   # Public: Get a User object given a name.
   #
   # Returns a User instance for the user with the specified name.
-  # userForName: (name) ->
-  # @robot.logger.warning '@userForName() is going to be deprecated in 3.0.0 use @robot.brain.userForName()'
-  # @robot.brain.userForName name
-  #  @robot.logger.info("Brain.UserForName")
+  userForName: (name) ->
+    @robot.logger.warning '@userForName() is going to be deprecated in 3.0.0 use @robot.brain.userForName()'
+    @robot.brain.userForName name
+    @robot.logger.info("Brain.UserForName")
 
 module.exports = RingCentralSMSAdapter
