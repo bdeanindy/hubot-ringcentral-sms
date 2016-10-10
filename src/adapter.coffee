@@ -10,8 +10,15 @@ class RingCentralSMSAdapter extends Adapter
   # Expects @robot which is a robot instance
   # For more info on Robot: https://github.com/github/hubot/blob/master/src/robot.coffee
   constructor: (robot, @options = {}) ->
-    @client = new RingCentralClient(@options, @robot)
     super(robot)
+
+    #throw new Error('RINGCENTRAL_APP_SERVER undefined') unless process.env.RINGCENTRAL_APP_SERVER
+    throw new Error('RINGCENTRAL_APP_KEY undefined') unless process.env.RINGCENTRAL_APP_KEY
+    throw new Error('RINGCENTRAL_APP_SECRET undefined') unless process.env.RINGCENTRAL_APP_SECRET
+    throw new Error('RINGCENTRAL_USERNAME undefined') unless process.env.RINGCENTRAL_USERNAME
+    throw new Error('RINGCENTRAL_PASSWORD undefined') unless process.env.RINGCENTRAL_PASSWORD
+
+    @client = new RingCentralClient(@options, @robot)
     # TODO: Add error handling for config param requirements
     @robot.logger.info("Constructor")
 

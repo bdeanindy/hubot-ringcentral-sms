@@ -114,28 +114,17 @@ class RingCentralClient
       @robot.logger.info e
       throw e
 
-  start: ->
-
-  finish: ->
-
-  connect: ->
-
-  on: ->
-
-  handleMessage: ->
-
-  handleError: ->
-
-  disconnect: ->
-
-  sendSMS: ->
-
+  # Public: sendSMS
+  #
+  # Returns apiResponse
+  sendSMS: (to, from, text) ->
+    @robot.logger.info "POST SMS request to RC API"
 
 
   # Public: FindUserByExtension
   #
   # Returns RingCentral Extension
-  findUserById: (authData) =>
+  getExtension: (authData) =>
     ownerId = if authData.json().owner_id then authData.json().owner_id else '~'
     # @robot.logger.info('findUserbyExtension')
     @platform.get('/account/~/extension/' + ownerId + '/')

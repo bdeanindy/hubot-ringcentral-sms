@@ -1,4 +1,4 @@
 RingCentralSMSAdapter = require './src/adapter'
 
-exports.use = (robot) ->
-  new RingCentralSMSAdapter robot
+exports.use = (robot, options = {}) ->
+  new RingCentralSMSAdapter robot, options

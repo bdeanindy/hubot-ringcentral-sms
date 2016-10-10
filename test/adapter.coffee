@@ -1,12 +1,29 @@
+assert = require('chai').assert
 should = require 'should'
 {Adapter, TextMessage, Message, Robot, User} = require.main.require 'hubot'
 
 RCSMSBot = require '../src/adapter'
 
+process.env['RINGCENTRAL_APP_SERVER'] = 'http://localhost.ringcentral.com'
+process.env['RINGCENTRAL_APP_KEY'] = 'appkey'
+process.env['RINGCENTRAL_APP_SECRET'] = 'appSecret'
+process.env['RINGCENTRAL_USERNAME'] =  '1234567890'
+process.env['RINGCENTRAL_PASSWORD'] = 'myPassword'
+
 describe 'RingCentral SMS Adapter', ->
 
   it 'Should have a constructor', ->
     @rcsmsbot.should.exist
+
+  constructorProps = ['RINGCENTRAL_APP_SERVER','RINGCENTRAL_APP_KEY','RINGCENTRAL_APP_SECRET','RINGCENTRAL_USERNAME','RINGCENTRAL_PASSWORD']
+
+  for constructorProp in constructorProps
+    it "Should throw on construction if #{constructorProp} missing", () ->
+      prop = process.env[constructorProp]
+      delete process.env[constructorProp]
+      assert.throws(RCSMSBot, new RegExp("#{constructorProp} undefined"))
+      process.env[constructorProp] = prop
+
 
   it 'Should initialize with a robot', ->
     @rcsmsbot.robot.should.eql @stubs.robot

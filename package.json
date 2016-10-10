@@ -21,6 +21,7 @@
     "ringcentral": "^3.0.0-rc1"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
     "coffee-coverage": "^1.0.1",
     "coffee-script": ">=1.2.0",
     "coffeelint": "^1.15.7",
