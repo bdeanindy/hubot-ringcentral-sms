@@ -13,7 +13,8 @@ class RingCentralSMSAdapter extends Adapter
 
     # Returns RingCentral SDK Instance
     @client = new RingCentralClient(options, @robot)
-    @robot.logger.info "Adapter.client: ", @client
+    #@robot.logger.info "Adapter.client: ", @client
+    @client.login()
 
   # Public: Method for sending data back to the chat source.
   #
@@ -22,7 +23,7 @@ class RingCentralSMSAdapter extends Adapter
   #
   # Returns nothing.
   send: (envelope, strings...) ->
-    # @robot.logger.info("Start to Send")
+    @robot.logger.info("Start to Send")
     # TODO: Add some sanity checks and invalidations
     # GET Robot User ID (phone number of authenticated user)
 
@@ -34,7 +35,7 @@ class RingCentralSMSAdapter extends Adapter
   #
   # Returns nothing.
   reply: (envelope, strings...) ->
-    # @robot.logger.info("Start to Reply")
+    @robot.logger.info("Start to Reply")
     # TODO: Add some sanity checks and invalidations
     # GET Robot User ID (phone number of authenticated user)
 
@@ -44,10 +45,12 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   run: ->
     @robot.logger.info("Initializing RingCentralSMSAdapter")
-    @robot.logger.info("Robot Name: ", @robot.name)
-    @robot.logger.info("Robot User: ", @robot.user)
-    #@client.on 'authenticated'
-    @emit "connected"
+    @robot.on 'authenticated', =>
+      @robot.logger.info "Client Authenticated"
+      @robot.user = @client.botUser
+      @robot.logger.info("Robot Name: ", @robot.name)
+      @robot.logger.info("Robot User: ", @robot.user)
+      @emit "connected"
 
 
   # Public: Get an Array of User objects stored in the brain.

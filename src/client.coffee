@@ -20,6 +20,10 @@ class RingCentralClient
     # Easy access list of listeners to prevent memory leaks
     listeners = []
 
+    # Placeholder for auth data
+    @authData = null
+    @botUser = null
+
     # Initialize the SDK
     sdkOpts =
       server: @appServer
@@ -30,38 +34,37 @@ class RingCentralClient
     # Convenience members
     @platform = @rcsdk.platform()
     @subscription = @rcsdk.createSubscription()
-    @bindEventHandlers
 
-  bindEventHandlers = ->
     # Bind platform event listeners
-    @platform.on(@platform.events.loginSuccess, @handleLoginSuccess)
-    @platform.on(@platform.events.loginError, @handleLoginError)
-    @platform.on(@platform.events.refreshSuccess, @handleRefreshSuccess)
-    @platform.on(@platform.events.refreshError, @handleRefreshError)
-    @platform.on(@platform.events.logoutSuccess, @handleLogoutSuccess)
+    @platform.on('loginSuccess', @handleLoginSuccess)
+    @platform.on('loginError', @handleLoginError)
+    @platform.on('refreshSuccess', @handleRefreshSuccess)
+    @platform.on('refreshError', @handleRefreshError)
+    @platform.on('logoutSuccess', @handleLogoutSuccess)
 
     # Bind subscription event listeners
-    @subscription.on(@subscription.events.notification, @handleSubscriptionNotification)
-    @subscription.on(@subscription.events.subscribeError, @handleSubscribeError)
-    @subscription.on(@subscription.events.subscribeSuccess, @handleSubscribeSuccess)
+    @subscription.on('notification', @handleSubscriptionNotification)
+    @subscription.on('subscribeError', @handleSubscribeError)
+    @subscription.on('subscribeSuccess', @handleSubscribeSuccess)
     @robot.logger.info "RingCentralClient event handlers have been bound"
 
 
 
   # Public Members
-  login: () ->
+  login: () =>
     @robot.logger.info "Authenticating to RingCentral"
-    username = if options.username? then options.username else process.env.RINGCENTRAL_USERNAME
-    password = if options.password? then options.password else process.env.RINGCENTRAL_PASSWORD
-    extension = if options.extension? then options.extension else process.env.RINGCENTRAL_EXTENSION
+    username = if @options.username? then options.username else process.env.RINGCENTRAL_USERNAME
+    password = if @options.password? then options.password else process.env.RINGCENTRAL_PASSWORD
+    extension = if @options.extension? then options.extension else process.env.RINGCENTRAL_EXTENSION
     authOpts =
       username: username
       password: password
       extension: extension
     @platform.login(authOpts)
-    .then (authData) ->
-      @robot.logger.info "AuthData: ", authData
-      @emit 'authenticated'
+    .then (authData) =>
+      @robot.logger.info "AuthData: ", authData.json()
+      @authData = authData.json()
+      @getExtension()
     .catch (e) ->
       @robot.logger.info e
       throw e
@@ -76,13 +79,13 @@ class RingCentralClient
   # Public: FindUserByExtension
   #
   # Returns RingCentral Extension
-  getExtension: (authData) =>
-    ownerId = if authData.json().owner_id then authData.json().owner_id else '~'
+  getExtension: () =>
+    ownerId = if @authData.owner_id then @authData.owner_id else '~'
     # @robot.logger.info('findUserbyExtension')
     @platform.get('/account/~/extension/' + ownerId + '/')
-    .then (extension) ->
+    .then (extension) =>
       # @robot.logger.info('Extension: ', extension.json())
-      extension.json()
+      @botUser = extension.json()
     .catch (e) =>
       @robot.logger.error(e)
       throw e
@@ -95,6 +98,7 @@ class RingCentralClient
   # Returns RingCentral API Token
   handleLoginSuccess: (msg) =>
     @robot.logger.info('RingCentral authentication successful', msg.json())
+    @robot.emit 'authenticated'
     @subscription.setEventFilters(['/account/~/extension/~/message-store/instant?type=SMS']).register()
 
 
@@ -135,8 +139,8 @@ class RingCentralClient
   # Returns nothing
   handleSubscriptionNotification: (msg) =>
     @robot.logger.info('New Inbound SMS: ', msg)
-    # user = new User(record.from.phoneNumber)
-    message = new TextMessage(user, record.subject, record.id)
+    user = new User(msg.record.from.phoneNumber)
+    message = new TextMessage(user, msg.record.subject, msg.record.id)
     @robot.receive(message)
 
 
