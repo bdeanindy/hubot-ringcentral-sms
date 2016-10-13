@@ -1,89 +1,36 @@
 RingCentral = require 'ringcentral'
+async = require 'async'
+_ = require 'lodash'
+fast_bindall = require 'fast_bindall'
+#event_emitter = require 'events'.EventEmitter
+https = require 'https'
+
 
 class RingCentralClient
 
-  constructor: (@options, @robot) ->
-    options = options || {}
-    robot = robot
+  constructor: (options = {}, robot) ->
+    @robot = robot
+    @robot.logger.info "RingCentralClient constructor"
+    @options = options
 
-    _rcAppServer = if options.server? then options.server else process.env.RINGCENTRAL_APP_SERVER
-    _rcAppKey = if options.appKey? then options.appKey else process.env.RINGCENTRAL_APP_KEY
-    _rcAppSecret = if options.appSecret? then options.appSecret else process.env.RINGCENTRAL_APP_SECRET
-    _rcUsername = if options.username? then options.username else process.env.RINGCENTRAL_USERNAME
-    _rcPassword = if options.password? then options.password else process.env.RINGCENTRAL_PASSWORD
-    _rcExtension = if options.extension? then options.extension else process.env.RINGCENTRAL_EXTENSION
-
-    # Define instance variables
-    instanceVars =
-      appServer:
-        get: ->
-          _rcAppServer
-        set: (val) ->
-          _rcAppServer = val
-      appKey:
-        get: ->
-          _rcAppKey
-        set: (val) ->
-          _rcAppKey = val
-      appSecret:
-        get: ->
-          _rcAppSecret
-        set: (val) ->
-          _rcAppSeret = val
-      username:
-        get: ->
-          _rcUsername
-        set: (val) ->
-          _rcUsername = val
-        configurable: true
-      password:
-        get: ->
-          _rcPassword
-        set: (val) ->
-          _rcPassword = val
-        configurable: true
-      extension:
-        get: ->
-          _rcExtension
-        set: (val) ->
-          _rcExtension = val
-        configurable: true
-
-    Object.defineProperties @, instanceVars
+    @appServer = if @options.server? then options.server else process.env.RINGCENTRAL_APP_SERVER
+    @appKey = if @options.appKey? then options.appKey else process.env.RINGCENTRAL_APP_KEY
+    @appSecret = if @options.appSecret? then options.appSecret else process.env.RINGCENTRAL_APP_SECRET
 
     # Easy access list of listeners to prevent memory leaks
     listeners = []
 
     # Initialize the SDK
-    @rcsdk = @instantiateSDK
-
-    # Convenience members
-    @platform = @setPlatform
-    @subscription = @setSubscription
-    @bindEventHandlers
-
-    # Authenticate to RingCentral
-    @login
-
-    # @robot.logger.info "RingCentralClient has been initiated"
-
-
-  # Private Members
-  instantiateSDK = ->
     sdkOpts =
       server: @appServer
       appKey: @appKey
       appSecret: @appSecret
     @rcsdk = new RingCentral sdkOpts
-    @robot.logger.info "RingCentral SDK has been instantiated"
 
-  setPlatform = ->
+    # Convenience members
     @platform = @rcsdk.platform()
-    @robot.logger.info "RingCentralClient.platform is set"
-
-  setSubscription = ->
     @subscription = @rcsdk.createSubscription()
-    @robot.logger.info "RingCentralClient.subscription is set"
+    @bindEventHandlers
 
   bindEventHandlers = ->
     # Bind platform event listeners
@@ -102,14 +49,19 @@ class RingCentralClient
 
 
   # Public Members
-  login: (options) ->
+  login: () ->
     @robot.logger.info "Authenticating to RingCentral"
-    @.username =
+    username = if options.username? then options.username else process.env.RINGCENTRAL_USERNAME
+    password = if options.password? then options.password else process.env.RINGCENTRAL_PASSWORD
+    extension = if options.extension? then options.extension else process.env.RINGCENTRAL_EXTENSION
     authOpts =
-      username: process.env.RINGCENTRAL_USERNAME
-      password: process.env.RINGCENTRAL_PASSWORD
-      extension: process.env.RINGCENTRAL_EXTENSION
-    @platform.login authOpts
+      username: username
+      password: password
+      extension: extension
+    @platform.login(authOpts)
+    .then (authData) ->
+      @robot.logger.info "AuthData: ", authData
+      @emit 'authenticated'
     .catch (e) ->
       @robot.logger.info e
       throw e
@@ -184,8 +136,8 @@ class RingCentralClient
   handleSubscriptionNotification: (msg) =>
     @robot.logger.info('New Inbound SMS: ', msg)
     # user = new User(record.from.phoneNumber)
-    # message = new TextMessage(user, record.subject, record.id)
-    # @robot.receive(message)
+    message = new TextMessage(user, record.subject, record.id)
+    @robot.receive(message)
 
 
   # Public: Subscribe Error Handler

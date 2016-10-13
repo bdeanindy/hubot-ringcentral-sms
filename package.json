@@ -17,6 +17,8 @@
     "npm": ">=3.10.x"
   },
   "dependencies": {
+    "fast_bindall": "0.0.1",
+    "lodash": "^4.16.4",
     "parent-require": "^1.0.0",
     "ringcentral": "^3.0.0-rc1"
   },
