@@ -51,6 +51,13 @@ class RingCentralSMSAdapter extends Adapter
       @robot.logger.info("Robot Name: ", @robot.name)
       @robot.logger.info("Robot User: ", @robot.user)
       @emit "connected"
+    @robot.router.post "/webhooks", (req, res) =>
+      # @robot.logger.info "Webhook.headers.validationToken: ", req.headers['validation-token']
+      validationToken = req.headers['validation-token']
+      if validationToken?
+        res.setHeader 'Validation-Token', validationToken
+      res.statusCode = 200
+      res.send()
 
 
   # Public: Get an Array of User objects stored in the brain.

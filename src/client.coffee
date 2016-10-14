@@ -41,11 +41,6 @@ class RingCentralClient
     @platform.on('refreshSuccess', @handleRefreshSuccess)
     @platform.on('refreshError', @handleRefreshError)
     @platform.on('logoutSuccess', @handleLogoutSuccess)
-
-    # Bind subscription event listeners
-    @subscription.on('notification', @handleSubscriptionNotification)
-    @subscription.on('subscribeError', @handleSubscribeError)
-    @subscription.on('subscribeSuccess', @handleSubscribeSuccess)
     @robot.logger.info "RingCentralClient event handlers have been bound"
 
 
@@ -91,6 +86,22 @@ class RingCentralClient
       throw e
 
 
+  createWebhook: (filters) =>
+    @robot.logger.info "filters passed: ", filters
+    console.log "Event Filters: ", filters
+    webhookConfig =
+      eventFilters: filters,
+      deliveryMode:
+        transportType: process.env.DELIVERY_MODE_TRANSPORT_TYPE,
+        address: process.env.DELIVERY_MODE_ADDRESS + '?auth_token=' + process.env.WEBHOOK_TOKEN
+
+    @platform.post('/subscription', webhookConfig)
+    .then (webhookResponse) =>
+      @robot.logger.info "Webhook creation response: ", webhookResponse
+    .catch (e) =>
+      @robot.logger.error e
+      throws e
+
 
 # RCSDK Event Handlers
   # Public: Platform Login Success Handler
@@ -98,8 +109,8 @@ class RingCentralClient
   # Returns RingCentral API Token
   handleLoginSuccess: (msg) =>
     @robot.logger.info('RingCentral authentication successful', msg.json())
+    @createWebhook ['/restapi/v1.0/account/~/extension/~/message-store/instant?type=SMS']
     @robot.emit 'authenticated'
-    @subscription.setEventFilters(['/account/~/extension/~/message-store/instant?type=SMS']).register()
 
 
   # Public: Platform Login Error Handler
@@ -132,31 +143,5 @@ class RingCentralClient
     @robot.logger.info('RingCentral logged out successfully', msg.json())
     # TODO: Lookup extension and user info to deregister below
     # user = new User(record.from.phoneNumber)
-
-
-  # Public: Subscription Event Notification Handler
-  #
-  # Returns nothing
-  handleSubscriptionNotification: (msg) =>
-    @robot.logger.info('New Inbound SMS: ', msg)
-    user = new User(msg.record.from.phoneNumber)
-    message = new TextMessage(user, msg.record.subject, msg.record.id)
-    @robot.receive(message)
-
-
-  # Public: Subscribe Error Handler
-  #
-  # Returns nothing
-  handleSubscribeError: (msg) =>
-    @robot.logger.error(msg)
-
-
-  # Public: Subscribe Success Handler
-  #
-  # Returns nothing
-  handleSubscribeSuccess: (msg) =>
-    @robot.logger.info('Subscribed', msg.json())
-
-
 
 module.exports = RingCentralClient
