@@ -1,5 +1,5 @@
-{Adapter, TextMessage, Message, Robot, User} = require.main.require 'hubot'
 RingCentralClient = require './client'
+{Adapter, TextMessage, Message, Robot, User} = require.main.require 'hubot'
 
 if process.env.NODE_ENV != 'production' then require('dotenv').load()
 
@@ -45,19 +45,32 @@ class RingCentralSMSAdapter extends Adapter
   # Returns nothing
   run: ->
     @robot.logger.info("Initializing RingCentralSMSAdapter")
+
     @robot.on 'authenticated', =>
       @robot.logger.info "Client Authenticated"
       @robot.user = @client.botUser
       @robot.logger.info("Robot Name: ", @robot.name)
       @robot.logger.info("Robot User: ", @robot.user)
       @emit "connected"
-    @robot.router.post "/webhooks", (req, res) =>
+
+    @robot.router.post "/webhooks", (req, res) ->
       # @robot.logger.info "Webhook.headers.validationToken: ", req.headers['validation-token']
       validationToken = req.headers['validation-token']
-      if validationToken?
-        res.setHeader 'Validation-Token', validationToken
-      res.statusCode = 200
-      res.send()
+      if 'POST' != req.method or req.url != '/webhooks?auth_token=' + process.env.WEBHOOK_TOKEN
+        res.statusCode = 403
+        res.end()
+      else
+        body = []
+        req.on 'data', (chunk) ->
+          body.push chunk
+        req.on 'end', ->
+          body = Buffer.concat(body).toString()
+          @robot.logger.info body
+        res.statusCode = 200
+        if validationToken?
+          res.setHeader 'Validation-Token', validationToken
+        res.statusCode = 200
+        res.end()
 
 
   # Public: Get an Array of User objects stored in the brain.

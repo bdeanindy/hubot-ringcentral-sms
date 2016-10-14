@@ -97,7 +97,7 @@ class RingCentralClient
 
     @platform.post('/subscription', webhookConfig)
     .then (webhookResponse) =>
-      @robot.logger.info "Webhook creation response: ", webhookResponse
+      @robot.logger.info "Webhook created"
     .catch (e) =>
       @robot.logger.error e
       throws e
