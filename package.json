@@ -58,8 +58,7 @@
       "url": "https://github.com/bdeanindy"
     }
   ],
-  "license": "MIT",
-  "private": true,
+  "license": "MIT"
   "bugs": {
     "url": "https://github.com/bdeanindy/hubot-ringcentral-sms/issues"
   },
