@@ -55,21 +55,20 @@ class RingCentralSMSAdapter extends Adapter
 
     @robot.router.post "/webhooks", (req, res) =>
       validationToken = req.headers['validation-token']
-      if 'POST' != req.method or req.url != '/webhooks
+      if 'POST' != req.method or req.url != '/webhooks'
         @robot.logger.info "Request rejected, is not POST method or URL does not match"
         res.statusCode = 403
-        res.end()
+      else if validationToken?
+        @robot.logger.info "Webhook validation"
+        res.setHeader 'Validation-Token', validationToken
+        res.statusCode = 200
       else
         @robot.logger.info "Valid Webhook notification received, processing"
-        if validationToken?
-          @robot.logger.info "Webhook validation"
-          res.setHeader 'Validation-Token', validationToken
-          res.end()
-        else
-          body = req.body
-          @robot.logger.info body
-          res.statusCode = 200
-          res.end()
+        body = req.body
+        @robot.logger.info body
+        res.statusCode = 200
+
+      res.end()
 
 
   # Public: Get an Array of User objects stored in the brain.

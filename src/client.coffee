@@ -93,7 +93,8 @@ class RingCentralClient
       eventFilters: filters,
       deliveryMode:
         transportType: process.env.DELIVERY_MODE_TRANSPORT_TYPE,
-        address: process.env.DELIVERY_MODE_ADDRESS + '?auth_token=' + process.env.WEBHOOK_TOKEN
+        # address: process.env.DELIVERY_MODE_ADDRESS + '?auth_token=' + process.env.WEBHOOK_TOKEN
+        address: process.env.DELIVERY_MODE_ADDRESS
 
     @platform.post('/subscription', webhookConfig)
     .then (webhookResponse) =>
