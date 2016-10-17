@@ -34,6 +34,7 @@ class RingCentralClient
     # Convenience members
     @platform = @rcsdk.platform()
     @subscription = @rcsdk.createSubscription()
+    @subscriptionId = ""
 
     # Bind platform event listeners
     @platform.on('loginSuccess', @handleLoginSuccess)
@@ -67,11 +68,22 @@ class RingCentralClient
   # Public: sendSMS
   #
   # Returns apiResponse
-  sendSMS: (to, from, text) ->
-    @robot.logger.info "POST SMS request to RC API"
+  sendSMS: (smsTo, smsFrom, smsBody, callback) ->
+    @robot.logger.info "POST SMS request to RC API to: ", smsTo
+    @robot.logger.info "Message: ", smsBody
+    smsOpts =
+      to: [{phoneNumber: smsTo}],
+      from: {phoneNumber: smsFrom},
+      text: smsBody
+    @platform.post('/account/~/extension/~/sms', smsOpts)
+    .then (response) =>
+      callback( response )
+    .catch (e) =>
+      callback e
+      throw e
 
 
-  # Public: FindUserByExtension
+  # Public: getExtension
   #
   # Returns RingCentral Extension
   getExtension: () =>
@@ -86,9 +98,25 @@ class RingCentralClient
       throw e
 
 
+  # Public: getWebhook
+  #
+  # Returns RingCentral Webhook Subscription
+  getWebhook: () =>
+    @robot.logger.info "getWebhook"
+    if !@subscriptionId? then return false
+    @platform.get('/subscription/' + @subscriptionId)
+    .then (myWebhook) =>
+      @robot.logger.info "Current Webhook", myWebhook
+    .catch (e) =>
+      @robot.logger.error e
+      throw e
+
+
+  # Public: createWebhook
+  #
+  # Returns RingCentral Webhook Subscription
   createWebhook: (filters) =>
     @robot.logger.info "filters passed: ", filters
-    console.log "Event Filters: ", filters
     webhookConfig =
       eventFilters: filters,
       deliveryMode:
@@ -98,10 +126,27 @@ class RingCentralClient
 
     @platform.post('/subscription', webhookConfig)
     .then (webhookResponse) =>
-      @robot.logger.info "Webhook created"
+      webhookResponse = webhookResponse.json()
+      @robot.logger.info "Webhook created", webhookResponse
+      @subscriptionId = webhookResponse.id
+      @robot.logger.info "Client.subscriptionId: ", @subscriptionId
     .catch (e) =>
       @robot.logger.error e
-      throws e
+      throw e
+
+
+  # Public: deleteSubscription
+  #
+  # Returns nothing
+  deleteWebhook: (subscriptionId) =>
+    subscriptionId = if subscriptionId? then subscriptionId else @subscriptionId
+    @robot.logger.info "deleteWebhook id: ", subscriptionId
+    @platform.delete('/subscription/' + @subscriptionId)
+    .then (myWebhook) =>
+      @robot.logger.info "Webhook Deleted"
+    .catch (e) =>
+      @robot.logger.error e
+      throw e
 
 
 # RCSDK Event Handlers
