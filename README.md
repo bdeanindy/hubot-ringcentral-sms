@@ -11,11 +11,24 @@ This is a [Hubot](http://hubot.github.com/) adapter to use with [RingCentral SMS
 - `cd /path/to/hubot`
 - `yo hubot` and enter 'ringcentral-sms' (no quotes) when [prompted for the adapter, or set everything with the option flags](https://hubot.github.com/docs/)
 - Initialize git and make your initial commit
+- Rename the environment template file `mv .env.tmpl .env` and fill in the values as expected
+> HUBOT_HEROKU_KEEPALIVE_URL= URL of either ngrok (local) or your deployed hubot instance root
+> RINGCENTRAL_ENV=sandbox||production
+> RINGCENTRAL_APP_NAME={{NAME OF YOUR RINGCENTRAL APP}}
+> RINGCENTRAL_APP_SERVER=https://platform[.devtest.]ringcentral.com
+> RINGCENTRAL_APP_KEY={{YOUR RINGCENTRAL APP KEY}}
+> RINGCENTRAL_APP_SECRET={{YOUR RINGCENTRAL APP SECRET}}
+> RINGCENTRAL_USERNAME= {{YOUR RINGCENTRAL USERNAME}}
+> RINGCENTRAL_PASSWORD={{YOUR RINGCENTRAL PASSWORD}}
+> DELIVERY_MODE_TRANSPORT_TYPE=WebHook
+> DELIVERY_MODE_ADDRESS= URL of either ngrok (local) or your deplyed hubot instance + /webhooks
+> WEBHOOK_TOKEN={{UNIQUE TOKEN FOR YOUR WEBHOOKS}}
+> HUBOT_SMS_FROM={{SHOULD MATCH YOUR RINGCENTRAL_USERNAME OR BE A VALID NUMBER USER HAS PERMISSION TO SEND SMS FROM}}
 - Check out the [hubot docs](https://github.com/github/hubot/tree/master/docs) for further guidance on how to build your bot
 
 #### Testing your bot locally
 
-- `HUBOT_RINGCENTRAL_SERVER=${ServerUrl} HUBOT_RINGCENTRAL_APIKEY=${AppKey} HUBOT_RINGCENTRAL_APISECRET=${AppSecret} HUBOT_RINGCENTRAL_USERNAME=${UserName} HUBOT_RINGCENTRAL_EXTENSION=${Extension} HUBOT_RINGCENTRAL_PASSWORD=${Password} ./bin/hubot --adapter ringcentral-sms`
+./bin/hubot --adapter ringcentral-sms`
 
 ## Changelog
 
