@@ -76,9 +76,9 @@ class RingCentralClient
       from: {phoneNumber: smsFrom},
       text: smsBody
     @platform.post('/account/~/extension/~/sms', smsOpts)
-    .then (response) =>
+    .then (response) ->
       callback( response )
-    .catch (e) =>
+    .catch (e) ->
       callback e
       throw e
 
